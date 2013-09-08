@@ -74,7 +74,7 @@ public class JobRunner {
             JobControl jobController = new JobControl(JOB_NAME);
             jobController.addJob(controlledJob);
 
-            LOG.info("[BulkLoadJobRunner] Start data collection");
+            LOG.info("Start data collection");
 
             Thread thread = new Thread(jobController);
             thread.start();
@@ -102,15 +102,15 @@ public class JobRunner {
                         dataTable
                 );
 
-                LOG.info("[BulkLoadJobRunner] Bulk load finished");
+                LOG.info("Bulk load finished");
             }
 
             if (jobController.getFailedJobList().size() > 0 ) {
-                LOG.error("[BulkLoadJobRunner - impressions] some jobs has not completed");
+                LOG.error("Some jobs has not completed");
             }
 
         } catch(Throwable e) {
-            LOG.error("[BulkLoadJobRunner - fail]", e);
+            LOG.error("[JobRunner - fail]", e);
         } finally {
             closeTable(dataTable);
         }
@@ -127,18 +127,18 @@ public class JobRunner {
     }
 
     private static void setFullPermissions(String... paths) throws IOException {
-        LOG.info("[BulkLoadJobRunner] Change permissions");
+        LOG.info("Change permissions");
         FileSystem system = Utils.getHDFSFileSystem();
 
         if (system != null) {
             for (String path : paths) {
                 Path uriPath = new Path(path + Path.SEPARATOR + MR_SYSTEM_OUTPUT_FOLDER);
                 if (!system.exists(uriPath)) {
-                    LOG.info("[BulkLoadJobRunner] Path not exists: " + uriPath.toString());
+                    LOG.info("Path not exists: " + uriPath.toString());
                     continue;
                 }
 
-                LOG.info("[BulkLoadJobRunner] Try set new permissions on folder " + uriPath.toString());
+                LOG.info("Try set new permissions on folder " + uriPath.toString());
                 system.setPermission(uriPath, FsPermission.createImmutable((short)0777));
 
                 RemoteIterator<LocatedFileStatus> fileStatuses = system.listLocatedStatus(uriPath);
@@ -146,7 +146,7 @@ public class JobRunner {
                 for (LocatedFileStatus status; fileStatuses.hasNext();) {
                     status = fileStatuses.next();
                     if (status != null) {
-                        LOG.info("[BulkLoadJobRunner] Try set new permissions on " + status.getPath());
+                        LOG.info("Try set new permissions on " + status.getPath());
                         system.setPermission(status.getPath(), FsPermission.createImmutable((short)0777));
                     }
                 }

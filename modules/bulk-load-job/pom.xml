@@ -12,7 +12,7 @@
     <groupId>com.blogspot.anikulin.bulkload.mrjob</groupId>
     <artifactId>bulk-load-job</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <name>modules/bulk-load-job</name>
+    <name>bulk-load-job</name>
     <url>http://maven.apache.org</url>
 
     <dependencies>

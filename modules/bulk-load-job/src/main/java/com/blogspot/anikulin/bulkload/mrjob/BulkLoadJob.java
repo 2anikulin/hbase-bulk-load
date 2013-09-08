@@ -57,7 +57,7 @@ public class BulkLoadJob extends Configured implements Tool {
         HFileOutputFormat.setOutputPath(job, new Path(outputPath));
 
         //It needs for autoconfiguring partitioner and reducer
-        //it doesn't load any data to Table
+        //and it doesn't load any data to Table
         HFileOutputFormat.configureIncrementalLoad(job, hTable);
 
         LOG.info("Job \"{}\" created", JOB_NAME);
@@ -84,7 +84,7 @@ public class BulkLoadJob extends Configured implements Tool {
         @Override
         public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 
-           String[] values = value.toString().split(",");
+           String[] values = value.toString().split("\t");
             if (values.length == 2) {
 
                 byte[] rowKey = Bytes.toBytes(values[0]);
