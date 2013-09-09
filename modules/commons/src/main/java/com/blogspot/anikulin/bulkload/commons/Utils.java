@@ -1,4 +1,4 @@
-package com.blogspot.anikulin.bulkload.mrjob;
+package com.blogspot.anikulin.bulkload.commons;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -105,6 +105,5 @@ public class Utils {
             LOG.error("Admin closing - failed", e);
         }
     }
-
 
 }

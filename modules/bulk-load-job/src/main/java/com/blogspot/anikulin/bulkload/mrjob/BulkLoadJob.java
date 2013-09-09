@@ -1,5 +1,6 @@
 package com.blogspot.anikulin.bulkload.mrjob;
 
+import com.blogspot.anikulin.bulkload.commons.Utils;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
@@ -19,7 +20,7 @@ import org.apache.hadoop.util.Tool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.IOException;
-import static com.blogspot.anikulin.bulkload.mrjob.Constants.*;
+import static com.blogspot.anikulin.bulkload.commons.Constants.*;
 
 /**
  * @author Anatoliy Nikulin
@@ -74,7 +75,8 @@ public class BulkLoadJob extends Configured implements Tool {
         private static final Logger LOG = LoggerFactory.getLogger(DataMapper.class);
 
         private static final byte[] COLUMN_FAMILY_NAME_BYTES = Bytes.toBytes(COLUMN_FAMILY_NAME);
-        private static final byte[] COLUMN_QUALIFIER_NAME_BYTES = Bytes.toBytes(COLUMN_QUALIFIER_NAME);
+        private static final byte[] COLUMN_QUALIFIER_DESCRIPTION_BYTES = Bytes.toBytes(COLUMN_QUALIFIER_DESCRIPTION);
+        private static final byte[] COLUMN_QUALIFIER_INDEX_BYTES = Bytes.toBytes(COLUMN_QUALIFIER_INDEX);
 
         @Override
         public void setup(Context context) throws IOException, InterruptedException {
@@ -86,12 +88,14 @@ public class BulkLoadJob extends Configured implements Tool {
 
            String[] values = value.toString().split("\t");
             if (values.length == 2) {
+                String rowKey = values[0];
+                byte[] hashedRowKey = Utils.getHash(rowKey);
 
-                byte[] rowKey = Bytes.toBytes(values[0]);
-                Put put = new Put(rowKey);
-                put.add(COLUMN_FAMILY_NAME_BYTES, COLUMN_QUALIFIER_NAME_BYTES, Bytes.toBytes(values[1]));
+                Put put = new Put(hashedRowKey);
+                put.add(COLUMN_FAMILY_NAME_BYTES, COLUMN_QUALIFIER_INDEX_BYTES, Bytes.toBytes(rowKey));
+                put.add(COLUMN_FAMILY_NAME_BYTES, COLUMN_QUALIFIER_DESCRIPTION_BYTES, Bytes.toBytes(values[1]));
 
-                context.write(new ImmutableBytesWritable(rowKey), put);
+                context.write(new ImmutableBytesWritable(hashedRowKey), put);
             } else {
                 context.getCounter(Counters.WRONG_DATA_FORMAT_COUNTER).increment(1);
                 LOG.warn("Wrong line format: {}", value);

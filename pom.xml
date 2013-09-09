@@ -7,7 +7,7 @@
   <version>1.0</version>
   <packaging>pom</packaging>
 
-  <name>hbase-bulk-load</name>
+  <name>root</name>
   <url>http://maven.apache.org</url>
 
   <properties>
@@ -17,6 +17,7 @@
   <modules>
      <module>modules/bulk-load-job</module>
      <module>modules/loaders</module>
+     <module>modules/commons</module>
   </modules>
 
   <build>

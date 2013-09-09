@@ -1,4 +1,4 @@
-package com.blogspot.anikulin.bulkload.mrjob;
+package com.blogspot.anikulin.bulkload.commons;
 
 /**
  * @author Anatoliy Nikulin
@@ -11,12 +11,10 @@ public class Constants {
 
     public static final String TABLE_NAME = "bulk_table";
     public static final String COLUMN_FAMILY_NAME = "cf_data";
-    public static final String COLUMN_QUALIFIER_NAME = "column_description";
+    public static final String COLUMN_QUALIFIER_DESCRIPTION = "column_description";
+    public static final String COLUMN_QUALIFIER_INDEX = "column_index";
 
-    //it must exists on HDFS
     public static final String JOB_INPUT_PATH = "/bulkload/input";
     public static final String JOB_OUTPUT_PATH = "/bulkload/output";
-
-    public static final String MR_SYSTEM_OUTPUT_FOLDER = "data";
 
 }

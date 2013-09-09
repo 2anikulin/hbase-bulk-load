@@ -1,5 +1,6 @@
 package com.blogspot.anikulin.bulkload.mrjob;
 
+import com.blogspot.anikulin.bulkload.commons.Utils;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.LocatedFileStatus;
 import org.apache.hadoop.fs.Path;
@@ -17,7 +18,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.List;
 
-import static com.blogspot.anikulin.bulkload.mrjob.Constants.*;
+import static com.blogspot.anikulin.bulkload.commons.Constants.*;
 
 /**
  * @author Anatoliy Nikulin
@@ -32,15 +33,18 @@ public class JobRunner {
         try {
             LOG.info("Runner started");
 
-            //Configuration jobConfiguration = new Configuration();
-            Configuration hBaseConfiguration = HBaseConfiguration.create(/*jobConfiguration*/);
+            Configuration hBaseConfiguration = HBaseConfiguration.create();
             hBaseConfiguration.set(ZOOKEEPER_QUORUM, ZOOKEEPER_HOST);
 
             LOG.info("Zookeeper path: " + ZOOKEEPER_HOST);
 
-            loading(/*jobConfiguration,*/ hBaseConfiguration);
+            long startTime = System.nanoTime();
 
-            LOG.info("Runner finished");
+            loading(hBaseConfiguration);
+
+            long endTime = System.nanoTime() - startTime;
+
+            LOG.info("Runner finished. Time: {} sec", endTime / 1000000000);
         } catch(Exception e) {
             LOG.error("JobRunner fail", e);
         }
@@ -48,8 +52,10 @@ public class JobRunner {
         System.exit(0);
     }
 
-    private static void loading(/*Configuration jobConfiguration, */Configuration jobConfiguration) {
-        LOG.info("Start loading process");
+    private static void loading(Configuration jobConfiguration) {
+        LOG.info("Loading process started");
+        LOG.info("Job input path {}", JOB_INPUT_PATH);
+        LOG.info("Job output path {}", JOB_OUTPUT_PATH);
 
         HTable dataTable = null;
 
@@ -74,35 +80,37 @@ public class JobRunner {
             JobControl jobController = new JobControl(JOB_NAME);
             jobController.addJob(controlledJob);
 
-            LOG.info("Start data collection");
+            LOG.info("Data collecting started");
 
             Thread thread = new Thread(jobController);
             thread.start();
-            thread.join();
 
-            /*
+            Object lock = new Object();
             while (!jobController.allFinished()) {
                 synchronized (lock) {
                     try {
-                        lock.wait(WAIT_PERIOD);
+                        lock.wait(1000);
                     } catch(InterruptedException e) {
                         LOG.error("[JobsRunner - fail]", e);
                     }
                 }
-            } */
+            }
+
+            LOG.info("Data collecting finished successfully");
 
             List<ControlledJob> successJobs = jobController.getSuccessfulJobList();
             if (successJobs.contains(controlledJob)) {
                 setFullPermissions(JOB_OUTPUT_PATH);
 
-                LOG.info("Start bulk-load process");
+                LOG.info("Bulk-load process started");
+
                 LoadIncrementalHFiles loader = new LoadIncrementalHFiles(jobConfiguration);
                 loader.doBulkLoad(
                         new Path(JOB_OUTPUT_PATH),
                         dataTable
                 );
 
-                LOG.info("Bulk load finished");
+                LOG.info("Bulk-load process finished");
             }
 
             if (jobController.getFailedJobList().size() > 0 ) {
@@ -132,7 +140,7 @@ public class JobRunner {
 
         if (system != null) {
             for (String path : paths) {
-                Path uriPath = new Path(path + Path.SEPARATOR + MR_SYSTEM_OUTPUT_FOLDER);
+                Path uriPath = new Path(path + Path.SEPARATOR + COLUMN_FAMILY_NAME);
                 if (!system.exists(uriPath)) {
                     LOG.info("Path not exists: " + uriPath.toString());
                     continue;
