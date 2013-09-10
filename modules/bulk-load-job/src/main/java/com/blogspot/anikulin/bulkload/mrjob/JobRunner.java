@@ -27,7 +27,10 @@ import static com.blogspot.anikulin.bulkload.commons.Constants.*;
 public class JobRunner {
 
     private static final Logger LOG = LoggerFactory.getLogger(JobRunner.class);
+
     private static final String JOB_NAME = "Data loading Job";
+    private static long PER_SECOND = 1000000000;
+    private static short FULL_GRANTS = (short)0777;
 
     public static void main(String[] args) {
         try {
@@ -44,7 +47,7 @@ public class JobRunner {
 
             long endTime = System.nanoTime() - startTime;
 
-            LOG.info("Runner finished. Time: {} sec", endTime / 1000000000);
+            LOG.info("Runner finished. Time: {} sec", endTime / PER_SECOND);
         } catch(Exception e) {
             LOG.error("JobRunner fail", e);
         }
@@ -147,7 +150,7 @@ public class JobRunner {
                 }
 
                 LOG.info("Try set new permissions on folder " + uriPath.toString());
-                system.setPermission(uriPath, FsPermission.createImmutable((short)0777));
+                system.setPermission(uriPath, FsPermission.createImmutable(FULL_GRANTS));
 
                 RemoteIterator<LocatedFileStatus> fileStatuses = system.listLocatedStatus(uriPath);
 
@@ -155,7 +158,7 @@ public class JobRunner {
                     status = fileStatuses.next();
                     if (status != null) {
                         LOG.info("Try set new permissions on " + status.getPath());
-                        system.setPermission(status.getPath(), FsPermission.createImmutable((short)0777));
+                        system.setPermission(status.getPath(), FsPermission.createImmutable(FULL_GRANTS));
                     }
                 }
             }
