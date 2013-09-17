@@ -1,7 +1,8 @@
-package com.blogspot.anikulin.bulkload.loaders;
+package com.blogspot.anikulin.bulkload.generators;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.*;
 
@@ -14,6 +15,7 @@ import java.io.*;
 public class DataGenerator {
 
     private static final String ROW_DATA_FILE = "row_data.txt";
+    private static volatile String rowData;
 
     public static void main( String[] args )
     {
@@ -26,18 +28,11 @@ public class DataGenerator {
         long rowsCount = Long.parseLong(args[1]);
         long splitRowsCount = args.length == 3 ? Long.parseLong(args[2]) : rowsCount;
 
-        InputStream inputStream = null;
-        StringWriter resourceWriter = null;
         BufferedWriter fileWriter = null;
 
         try {
-            inputStream = DataGenerator.class.getClassLoader().getResourceAsStream(ROW_DATA_FILE);
-
-            resourceWriter = new StringWriter();
-            IOUtils.copy(inputStream, resourceWriter);
-            String rowString = resourceWriter.toString();
-
             System.out.println("Start");
+            String rowString = getRowData();
 
             int counter = 0;
             for (long i = 0; i < rowsCount; i++) {
@@ -57,9 +52,28 @@ public class DataGenerator {
             e.printStackTrace();
         } finally {
             IOUtils.closeQuietly(fileWriter);
+        }
+    }
+
+    public static String getRowData() throws IOException {
+        if (StringUtils.isNotBlank(rowData)) {
+            return  rowData;
+        }
+
+        InputStream inputStream = null;
+        StringWriter resourceWriter = null;
+
+        try {
+            inputStream = DataGenerator.class.getClassLoader().getResourceAsStream(ROW_DATA_FILE);
+            resourceWriter = new StringWriter();
+            IOUtils.copy(inputStream, resourceWriter);
+            rowData = resourceWriter.toString();
+        } finally {
             IOUtils.closeQuietly(inputStream);
             IOUtils.closeQuietly(resourceWriter);
         }
+
+        return rowData;
     }
 
 
