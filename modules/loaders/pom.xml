@@ -14,13 +14,23 @@
   <name>loaders</name>
   <url>http://maven.apache.org</url>
 
+   <properties>
+       <powermock.version>1.5.1</powermock.version>
+   </properties>
+
    <dependencies>
 
-       <dependency>
-           <groupId>org.slf4j</groupId>
-           <artifactId>slf4j-api</artifactId>
-           <version>1.7.5</version>
-       </dependency>
+      <dependency>
+         <groupId>org.slf4j</groupId>
+         <artifactId>slf4j-api</artifactId>
+         <version>1.7.5</version>
+      </dependency>
+
+      <dependency>
+         <groupId>ch.qos.logback</groupId>
+         <artifactId>logback-classic</artifactId>
+         <version>1.0.11</version>
+      </dependency>
 
       <dependency>
           <groupId>com.blogspot.anikulin.bulkload</groupId>
@@ -42,13 +52,28 @@
       </dependency>
 
        <dependency>
-           <groupId>org.mockito</groupId>
-           <artifactId>mockito-core</artifactId>
-           <version>1.9.0</version>
+           <groupId>org.powermock</groupId>
+           <artifactId>powermock-module-junit4</artifactId>
+           <version>${powermock.version}</version>
            <scope>test</scope>
        </dependency>
 
-  </dependencies>
+       <dependency>
+           <groupId>org.powermock</groupId>
+           <artifactId>powermock-api-easymock</artifactId>
+           <version>${powermock.version}</version>
+           <scope>test</scope>
+       </dependency>
+
+       <dependency>
+           <groupId>org.easymock</groupId>
+           <artifactId>easymock</artifactId>
+           <version>3.2</version>
+           <scope>test</scope>
+       </dependency>
+
+
+   </dependencies>
 
     <build>
         <plugins>

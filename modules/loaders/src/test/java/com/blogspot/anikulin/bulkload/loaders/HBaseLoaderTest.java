@@ -2,45 +2,58 @@ package com.blogspot.anikulin.bulkload.loaders;
 
 import com.blogspot.anikulin.bulkload.clients.HBaseClient;
 import org.junit.Test;
-import org.mockito.Mockito;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.assertTrue;
+import static org.powermock.api.support.membermodification.MemberMatcher.method;
+import static org.powermock.api.support.membermodification.MemberModifier.stub;
+
 
 /**
  * @author Anatoliy Nikulin
  * @email 2anikulin@gmail.com
  */
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(HBaseLoader.class)
 public class HBaseLoaderTest {
 
     @Test
-    public void mainTest() throws IOException {
-        HBaseLoader loader = mock(HBaseLoader.class);
+    public void mainTest() throws Exception {
+
         final HBaseClientMock clientMock = new HBaseClientMock();
 
-        when(
-                loader.createClient(Mockito.anyString(), Mockito.anyString())
-        ).thenReturn(
-                clientMock
-        );
+        stub(method(HBaseLoader.class, "createClient")).toReturn(clientMock);
 
-        loader.main(new String[]{"0", "1000000"});
+        HBaseLoader.main(new String[]{"0", "1000000"});
+
+        assertTrue(clientMock.getCloseCount() == 8);
+
+        assertTrue(clientMock.getKeys().get(0L) == 124999);
+        assertTrue(clientMock.getKeys().get(125000L) == 249999);
+        assertTrue(clientMock.getKeys().get(250000L) == 374999);
+        assertTrue(clientMock.getKeys().get(375000L) == 499999);
+        assertTrue(clientMock.getKeys().get(500000L) == 624999);
+        assertTrue(clientMock.getKeys().get(625000L) == 749999);
+        assertTrue(clientMock.getKeys().get(750000L) == 874999);
+        assertTrue(clientMock.getKeys().get(875000L) == 999999);
     }
 }
 
 class HBaseClientMock implements HBaseClient {
 
-    private static final List<Pair> keys = new CopyOnWriteArrayList<Pair>();
+    private static final Map<Long, Long> keys = new ConcurrentHashMap<Long, Long>();
     private static final AtomicInteger closeCounter = new AtomicInteger();
 
     @Override
     public void send(long keyStart, long keyEnd) throws IOException {
-        keys.add(new Pair(keyStart, keyEnd));
+        keys.put(keyStart, keyEnd);
     }
 
     @Override
@@ -48,30 +61,12 @@ class HBaseClientMock implements HBaseClient {
         closeCounter.getAndIncrement();
     }
 
-    public List<Pair> getKeys() {
+    public Map<Long, Long> getKeys() {
         return keys;
     }
 
     public int getCloseCount() {
         return closeCounter.get();
-    }
-
-    public static class Pair {
-        private long left;
-        private long right;
-
-        public Pair(long left, long right) {
-            this.left = left;
-            this.right = right;
-        }
-
-        public long getLeft() {
-            return left;
-        }
-
-        public long getRight() {
-            return right;
-        }
     }
 }
 
