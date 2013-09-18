@@ -24,14 +24,18 @@ import static org.powermock.api.support.membermodification.MemberModifier.stub;
 @PrepareForTest(HBaseLoader.class)
 public class HBaseLoaderTest {
 
+    private static String STUB_METHOD = "createClient";
+    private static String KEY_START = "0";
+    private static String KEY_END = "1000000";
+
     @Test
     public void mainTest() throws Exception {
 
         final HBaseClientMock clientMock = new HBaseClientMock();
 
-        stub(method(HBaseLoader.class, "createClient")).toReturn(clientMock);
+        stub(method(HBaseLoader.class, STUB_METHOD)).toReturn(clientMock);
 
-        HBaseLoader.main(new String[]{"0", "1000000"});
+        HBaseLoader.main(new String[]{KEY_START, KEY_END});
 
         assertTrue(clientMock.getCloseCount() == 8);
 
@@ -46,6 +50,9 @@ public class HBaseLoaderTest {
     }
 }
 
+/**
+ * HBaseClient Mock implementation
+ */
 class HBaseClientMock implements HBaseClient {
 
     private static final Map<Long, Long> keys = new ConcurrentHashMap<Long, Long>();
