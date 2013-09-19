@@ -61,7 +61,7 @@ public class HBaseLoader {
                                 client.send(fromKey, toKey);
 
                                 commonTimeCounter.getAndAdd(System.nanoTime() - startTime);
-                            } catch (Throwable e) {
+                            } catch (Exception e) {
                                 LOG.error("Thread id: {} fail",Thread.currentThread().getId(), e);
                             } finally {
                                 close(client);

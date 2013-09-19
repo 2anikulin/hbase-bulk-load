@@ -120,7 +120,7 @@ public class JobRunner {
                 LOG.error("Some jobs has not completed");
             }
 
-        } catch(Throwable e) {
+        } catch(Exception e) {
             LOG.error("[JobRunner - fail]", e);
         } finally {
             closeTable(dataTable);
