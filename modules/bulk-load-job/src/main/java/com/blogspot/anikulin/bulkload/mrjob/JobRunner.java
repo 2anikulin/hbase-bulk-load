@@ -15,6 +15,7 @@ import org.apache.hadoop.mapreduce.lib.jobcontrol.JobControl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.List;
 
@@ -123,16 +124,16 @@ public class JobRunner {
         } catch(Exception e) {
             LOG.error("[JobRunner - fail]", e);
         } finally {
-            closeTable(dataTable);
+            close(dataTable);
         }
     }
 
-    private static void closeTable(HTable table) {
-        if (table != null) {
+    private static void close(Closeable object) {
+        if (object != null) {
             try {
-                table.close();
+                object.close();
             } catch(IOException e) {
-                LOG.error("Can't close HBase table", e);
+                LOG.error("Can't close Object", e);
             }
         }
     }
@@ -142,28 +143,30 @@ public class JobRunner {
         FileSystem system = Utils.getHDFSFileSystem();
 
         if (system != null) {
-            for (String path : paths) {
-                Path uriPath = new Path(path + Path.SEPARATOR + COLUMN_FAMILY_NAME);
-                if (!system.exists(uriPath)) {
-                    LOG.info("Path not exists: " + uriPath.toString());
-                    continue;
-                }
+            try {
+                for (String path : paths) {
+                    Path uriPath = new Path(path + Path.SEPARATOR + COLUMN_FAMILY_NAME);
+                    if (!system.exists(uriPath)) {
+                        LOG.info("Path not exists: " + uriPath.toString());
+                        continue;
+                    }
 
-                LOG.info("Try set new permissions on folder " + uriPath.toString());
-                system.setPermission(uriPath, FsPermission.createImmutable(FULL_GRANTS));
+                    LOG.info("Try set new permissions on folder " + uriPath.toString());
+                    system.setPermission(uriPath, FsPermission.createImmutable(FULL_GRANTS));
 
-                RemoteIterator<LocatedFileStatus> fileStatuses = system.listLocatedStatus(uriPath);
+                    RemoteIterator<LocatedFileStatus> fileStatuses = system.listLocatedStatus(uriPath);
 
-                for (LocatedFileStatus status; fileStatuses.hasNext();) {
-                    status = fileStatuses.next();
-                    if (status != null) {
-                        LOG.info("Try set new permissions on " + status.getPath());
-                        system.setPermission(status.getPath(), FsPermission.createImmutable(FULL_GRANTS));
+                    for (LocatedFileStatus status; fileStatuses.hasNext();) {
+                        status = fileStatuses.next();
+                        if (status != null) {
+                            LOG.info("Try set new permissions on " + status.getPath());
+                            system.setPermission(status.getPath(), FsPermission.createImmutable(FULL_GRANTS));
+                        }
                     }
                 }
+            } finally {
+                close(system);
             }
-
-            system.close();
         }
     }
 }
