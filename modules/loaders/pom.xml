@@ -98,6 +98,22 @@
                             </transformers>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>hbase-loader</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>hbase-loader</finalName>
+                            <transformers>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>com.blogspot.anikulin.bulkload.loaders.HBaseLoader</mainClass>
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
 

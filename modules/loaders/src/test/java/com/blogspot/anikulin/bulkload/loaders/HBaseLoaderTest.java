@@ -3,6 +3,7 @@ package com.blogspot.anikulin.bulkload.loaders;
 import com.blogspot.anikulin.bulkload.clients.HBaseClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -15,13 +16,13 @@ import static org.junit.Assert.assertTrue;
 import static org.powermock.api.support.membermodification.MemberMatcher.method;
 import static org.powermock.api.support.membermodification.MemberModifier.stub;
 
-
 /**
  * @author Anatoliy Nikulin
  * @email 2anikulin@gmail.com
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(HBaseLoader.class)
+@PowerMockIgnore({"javax.management.*"})
 public class HBaseLoaderTest {
 
     private static String STUB_METHOD = "createClient";

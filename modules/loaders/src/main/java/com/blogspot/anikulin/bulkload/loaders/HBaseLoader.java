@@ -29,7 +29,7 @@ public class HBaseLoader {
         final AtomicLong keysRangeCounter = new AtomicLong(startKey);
         final long step = (endKey - startKey) / threadsCount;
 
-        Executor executor = Executors.newFixedThreadPool(threadsCount);
+        ExecutorService executor = Executors.newFixedThreadPool(threadsCount);
 
         for (int i = 0; i < threadsCount; i++) {
             executor.execute(
@@ -61,6 +61,9 @@ public class HBaseLoader {
                                 client.send(fromKey, toKey);
 
                                 commonTimeCounter.getAndAdd(System.nanoTime() - startTime);
+                            } catch (InterruptedException ie) {
+                                LOG.error("Thread id: {} was interrupted",Thread.currentThread().getId(), ie);
+                                Thread.currentThread().interrupt();
                             } catch (Exception e) {
                                 LOG.error("Thread id: {} fail",Thread.currentThread().getId(), e);
                             } finally {
@@ -83,6 +86,8 @@ public class HBaseLoader {
                 threadsCount,
                 commonTimeCounter.get() / threadsCount / 1000000
         );
+
+        executor.shutdownNow();
     }
 
     private static HBaseClient createClient(String zookeeper, String tableName) throws IOException {
@@ -101,7 +106,7 @@ public class HBaseLoader {
 
     public static void main(String[] args) {
 
-        if (args.length < 2) {
+        if (args.length < 2) { //TODO Change description
             System.out.println("Wrong input parameters. Use [start key] [end key] optional: [zookeeper] [table name] [threads count]");
             return;
         }

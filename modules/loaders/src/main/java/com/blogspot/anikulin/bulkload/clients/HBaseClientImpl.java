@@ -1,6 +1,5 @@
 package com.blogspot.anikulin.bulkload.clients;
 
-import com.blogspot.anikulin.bulkload.clients.HBaseClient;
 import com.blogspot.anikulin.bulkload.commons.Utils;
 import com.blogspot.anikulin.bulkload.generators.DataGenerator;
 import org.apache.hadoop.conf.Configuration;
@@ -39,7 +38,7 @@ public class HBaseClientImpl implements HBaseClient {
     @Override
     public void send(long keyStart, long keyEnd) throws IOException {
 
-        for (long i = keyStart; i < keyEnd; i++) {
+        for (long i = keyStart; i <= keyEnd; i++) {
             String rowKey = Long.toString(i);
 
             Put put = new Put(Utils.getHash(rowKey));
