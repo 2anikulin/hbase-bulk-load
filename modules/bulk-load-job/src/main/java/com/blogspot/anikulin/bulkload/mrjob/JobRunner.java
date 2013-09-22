@@ -1,5 +1,6 @@
 package com.blogspot.anikulin.bulkload.mrjob;
 
+import com.blogspot.anikulin.bulkload.commons.Constants;
 import com.blogspot.anikulin.bulkload.commons.Utils;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.LocatedFileStatus;
@@ -28,10 +29,9 @@ import static com.blogspot.anikulin.bulkload.commons.Constants.*;
 public class JobRunner {
 
     private static final Logger LOG = LoggerFactory.getLogger(JobRunner.class);
-
     private static final String JOB_NAME = "Data loading Job";
-    private static long PER_SECOND = 1000000000;
     private static short FULL_GRANTS = (short)0777;
+    private static int   WAIT_TIME = 1000;
 
     public static void main(String[] args) {
         try {
@@ -48,7 +48,7 @@ public class JobRunner {
 
             long endTime = System.nanoTime() - startTime;
 
-            LOG.info("Runner finished. Time: {} sec", endTime / PER_SECOND);
+            LOG.info("Runner finished. Time: {} sec", endTime / Constants.NANO_SECONDS);
         } catch(Exception e) {
             LOG.error("JobRunner fail", e);
         }
@@ -93,7 +93,7 @@ public class JobRunner {
             while (!jobController.allFinished()) {
                 synchronized (lock) {
                     try {
-                        lock.wait(1000);
+                        lock.wait(WAIT_TIME);
                     } catch(InterruptedException e) {
                         LOG.error("[JobsRunner - fail]", e);
                     }

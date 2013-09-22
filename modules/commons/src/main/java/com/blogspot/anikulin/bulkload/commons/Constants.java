@@ -17,4 +17,6 @@ public class Constants {
     public static final String JOB_INPUT_PATH = "/bulkload/input";
     public static final String JOB_OUTPUT_PATH = "/bulkload/output";
 
+    public static final long NANO_SECONDS = 1000000000;
+
 }

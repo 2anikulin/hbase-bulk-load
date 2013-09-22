@@ -3,6 +3,8 @@ package com.blogspot.anikulin.bulkload.loaders;
 
 import com.blogspot.anikulin.bulkload.clients.HBaseClient;
 import com.blogspot.anikulin.bulkload.clients.HBaseClientImpl;
+import com.blogspot.anikulin.bulkload.commons.Constants;
+import com.blogspot.anikulin.bulkload.commons.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,7 +69,7 @@ public class HBaseLoader {
                             } catch (Exception e) {
                                 LOG.error("Thread id: {} fail",Thread.currentThread().getId(), e);
                             } finally {
-                                close(client);
+                                Utils.close(client);
                                 latch.countDown();
                             }
                         }
@@ -79,12 +81,13 @@ public class HBaseLoader {
             latch.await();
         } catch (InterruptedException e) {
             LOG.error("Process was interrupted", e);
+            Thread.currentThread().interrupt();
         }
 
         LOG.info(
                 "Process finished. Threads count: {} average time (ms): {}",
                 threadsCount,
-                commonTimeCounter.get() / threadsCount / 1000000
+                commonTimeCounter.get() / threadsCount / Constants.NANO_SECONDS
         );
 
         executor.shutdownNow();
@@ -92,16 +95,6 @@ public class HBaseLoader {
 
     private static HBaseClient createClient(String zookeeper, String tableName) throws IOException {
         return new HBaseClientImpl(zookeeper, tableName);
-    }
-
-    private static void close(HBaseClient client) {
-        if (client != null) {
-            try {
-                client.close();
-            } catch (Throwable e) {
-                LOG.error("Error while closing HBaseClientImpl", e);
-            }
-        }
     }
 
     public static void main(String[] args) {

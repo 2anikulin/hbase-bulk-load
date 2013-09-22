@@ -10,6 +10,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -96,13 +97,13 @@ public class Utils {
         }
     }
 
-    private static void close(HBaseAdmin admin) {
+    public static void close(Closeable object) {
         try {
-            if (admin != null) {
-                admin.close();
+            if (object != null) {
+                object.close();
             }
-        } catch(IOException e) {
-            LOG.error("Admin closing - failed", e);
+        } catch(Throwable e) {
+            LOG.error("Error while closing object", e);
         }
     }
 
