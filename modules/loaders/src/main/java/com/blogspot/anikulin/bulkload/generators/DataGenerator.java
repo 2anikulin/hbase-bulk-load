@@ -10,7 +10,7 @@ import java.io.*;
  * @author Anatoliy Nikulin
  * @email 2anikulin@gmail.com
  *
- * Generates Tab Separated files with test data
+ * Generates Tab Separated files included test data
  */
 public class DataGenerator {
 
@@ -20,7 +20,9 @@ public class DataGenerator {
     public static void main( String[] args )
     {
         if (args.length < 2) {
-            System.out.println("Wrong input parameters. Use generator [fileName] [rowsCount] optional: [splitByCount]");
+            System.out.println(
+                    "Wrong input parameters. Use generator [fileName] [rowsCount] optional: [splitByCount]"
+            );
             return;
         }
 
@@ -42,9 +44,13 @@ public class DataGenerator {
                     fileWriter = createFile(outputFile, counter++);
                 }
 
-                fileWriter.write(
-                        String.format("%d\t%s\n", i, rowString)
-                );
+                if (fileWriter != null) {
+                    fileWriter.write(
+                            String.format("%d\t%s\n", i, rowString)
+                    );
+                } else {
+                    throw new NullPointerException("Error while writer creating");
+                }
             }
             System.out.println("Successfully!");
 

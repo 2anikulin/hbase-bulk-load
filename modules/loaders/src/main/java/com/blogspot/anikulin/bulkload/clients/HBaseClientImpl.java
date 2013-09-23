@@ -15,6 +15,8 @@ import static com.blogspot.anikulin.bulkload.commons.Constants.*;
 /**
  * @author Anatoliy Nikulin
  * @email 2anikulin@gmail.com
+ *
+ * This implementation fills HBase table
  */
 public class HBaseClientImpl implements HBaseClient {
 
@@ -35,6 +37,14 @@ public class HBaseClientImpl implements HBaseClient {
         table.setAutoFlush(false);
     }
 
+    /**
+     * Fills HBase table incrementally
+     * from start key to end key
+     *
+     * @param keyStart
+     * @param keyEnd
+     * @throws IOException
+     */
     @Override
     public void send(long keyStart, long keyEnd) throws IOException {
 

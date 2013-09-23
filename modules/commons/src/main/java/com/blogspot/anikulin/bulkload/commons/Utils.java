@@ -17,6 +17,8 @@ import java.util.Arrays;
 /**
  * @author Anatoliy Nikulin
  * @email 2anikulin@gmail.com
+ *
+ * Utils implements common HDFS and HBase functionality
  */
 public class Utils {
 
@@ -24,6 +26,13 @@ public class Utils {
     private static final String FS_DISABLE_CACHE = "fs.hdfs.impl.disable.cache";
     private static final int REGIONS_COUNT = 10;
 
+    /**
+     * Returns Hadoop File System drives
+     * It needed to be closed after you finish
+     *
+     * @return File System
+     * @throws IOException
+     */
     public static FileSystem getHDFSFileSystem() throws IOException {
         LOG.info("Start configuring HDFS connection");
 
@@ -41,10 +50,23 @@ public class Utils {
         return fileSystem;
     }
 
+    /**
+     * Calculates MD5 hash
+     *
+     * @return hashed value
+     */
     public static byte[] getHash(String value) {
         return DigestUtils.md5(value);
     }
 
+    /**
+     * Checks HBase table
+     *
+     * @param tableName HBase table name
+     * @param config    HBase configuration
+     * @return          true if table exists
+     * @throws IOException
+     */
     public static boolean isHTableExists(String tableName, Configuration config) throws IOException {
         HBaseAdmin admin = null;
         boolean ret = false;
@@ -66,6 +88,13 @@ public class Utils {
         return ret;
     }
 
+    /**
+     * Creates new HBase table and splits it on several regions
+     *
+     * @param tableName HBase table name
+     * @param config    HBase configuration
+     * @throws IOException
+     */
     public static void createHTable(String tableName, Configuration config) throws IOException {
         HTableDescriptor descriptor = new HTableDescriptor(
                 Bytes.toBytes(tableName)
@@ -97,6 +126,11 @@ public class Utils {
         }
     }
 
+    /**
+     * Closes object
+     *
+     * @param object
+     */
     public static void close(Closeable object) {
         try {
             if (object != null) {

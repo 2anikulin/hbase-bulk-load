@@ -25,8 +25,12 @@ import static com.blogspot.anikulin.bulkload.commons.Constants.*;
 /**
  * @author Anatoliy Nikulin
  * @email 2anikulin@gmail.com
+ *
+ * Job implementation.
+ * It prepares data for bulk load.
+ * Mapper splits input lines on key and value.
+ * All keys are MD5 hashed
  */
-
 public class BulkLoadJob extends Configured implements Tool {
 
     private static final Logger LOG = LoggerFactory.getLogger(BulkLoadJob.class);
@@ -37,6 +41,16 @@ public class BulkLoadJob extends Configured implements Tool {
         throw new NotImplementedException("Method not implemented");
     }
 
+    /**
+     * Creates and initializes Job
+     *
+     * @param configuration  Job configuration
+     * @param hTable         HBase table
+     * @param inputPath      path to input files
+     * @param outputPath     path to prepared output HFile
+     * @return               returns constructed and initialized Job
+     * @throws IOException
+     */
     public static Job createJob(Configuration configuration, HTable hTable, String inputPath, String outputPath)
             throws IOException {
 
@@ -66,10 +80,16 @@ public class BulkLoadJob extends Configured implements Tool {
         return job;
     }
 
+    /**
+     * Counters enum for collecting statistics data
+     */
     public static enum Counters {
         WRONG_DATA_FORMAT_COUNTER
     }
 
+    /**
+     * Mapper implementation
+     */
     public static class DataMapper extends Mapper<LongWritable, Text, ImmutableBytesWritable, Put> {
 
         private static final Logger LOG = LoggerFactory.getLogger(DataMapper.class);
@@ -83,6 +103,15 @@ public class BulkLoadJob extends Configured implements Tool {
 
         }
 
+        /**
+         * Map function
+         *
+         * @param key      input key. It always 0
+         * @param value    input value, text line
+         * @param context  job context
+         * @throws IOException
+         * @throws InterruptedException
+         */
         @Override
         public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 

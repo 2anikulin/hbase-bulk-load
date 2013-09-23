@@ -17,12 +17,53 @@ import static com.blogspot.anikulin.bulkload.commons.Constants.*;
 /**
  * @author Anatoliy Nikulin
  * @email 2anikulin@gmail.com
+ *
+ * Base loader.
+ * Creates thread for each client and fills HBase table
+ * in concurrent mode
  */
 public class HBaseLoader {
 
     private static final Logger LOG = LoggerFactory.getLogger(HBaseLoader.class);
     private static final int defaultThreadsCount = 8;
 
+    public static void main(String[] args) {
+
+        if (args.length < 2) { //TODO Change description
+            System.out.println("Wrong input parameters. Use [start key] [end key] optional: [zookeeper] [table name] [threads count]");
+            return;
+        }
+
+        long startKey = Long.parseLong(args[0]);
+        long endKey = Long.parseLong(args[1]);
+
+        String zookeeper = args.length > 2 ? args[2] : ZOOKEEPER_HOST;
+        String tableName = args.length > 3 ? args[3] : TABLE_NAME;
+
+        int threadsCount = args.length > 4 ? Integer.parseInt(args[3]) : defaultThreadsCount;
+
+        LOG.info(
+                "Process started with startKey {}, endKey {}, zookeeper {}, table name {}, threads count {}",
+                startKey,
+                endKey,
+                zookeeper,
+                tableName,
+                threadsCount
+        );
+
+        load(startKey, endKey, zookeeper, tableName, threadsCount);
+    }
+
+
+    /**
+     * Starts HBase filling by key range
+     *
+     * @param startKey      start key
+     * @param endKey        end key
+     * @param zookeeper     zookeeper host name
+     * @param tableName     HBase table name
+     * @param threadsCount  count of threads
+     */
     public static void load(final long startKey, final long endKey, final String zookeeper, final String tableName, int threadsCount) {
         final CyclicBarrier barrier = new CyclicBarrier(threadsCount);
         final CountDownLatch latch = new CountDownLatch(threadsCount);
@@ -95,32 +136,5 @@ public class HBaseLoader {
 
     private static HBaseClient createClient(String zookeeper, String tableName) throws IOException {
         return new HBaseClientImpl(zookeeper, tableName);
-    }
-
-    public static void main(String[] args) {
-
-        if (args.length < 2) { //TODO Change description
-            System.out.println("Wrong input parameters. Use [start key] [end key] optional: [zookeeper] [table name] [threads count]");
-            return;
-        }
-
-        long startKey = Long.parseLong(args[0]);
-        long endKey = Long.parseLong(args[1]);
-
-        String zookeeper = args.length > 2 ? args[2] : ZOOKEEPER_HOST;
-        String tableName = args.length > 3 ? args[3] : TABLE_NAME;
-
-        int threadsCount = args.length > 4 ? Integer.parseInt(args[3]) : defaultThreadsCount;
-
-        LOG.info(
-                "Process started with startKey {}, endKey {}, zookeeper {}, table name {}, threads count {}",
-                 startKey,
-                 endKey,
-                 zookeeper,
-                 tableName,
-                 threadsCount
-        );
-
-        load(startKey, endKey, zookeeper, tableName, threadsCount);
     }
 }

@@ -25,6 +25,11 @@ import static com.blogspot.anikulin.bulkload.commons.Constants.*;
 /**
  * @author Anatoliy Nikulin
  * @email 2anikulin@gmail.com
+ *
+ * Runner implementation
+ * It prepare data for map reduce.
+ * Creates HBase table if doesn't exists
+ * Runs job and bulk load function
  */
 public class JobRunner {
 
