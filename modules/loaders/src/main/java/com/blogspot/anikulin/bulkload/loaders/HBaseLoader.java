@@ -26,10 +26,25 @@ public class HBaseLoader {
     private static final Logger LOG = LoggerFactory.getLogger(HBaseLoader.class);
     private static final int DEFAULT_THREADS_COUNT = 8;
 
+    /**
+     * Entry point
+     *
+     * [start key]       - from key
+     * [end key]         - to key
+     *
+     *  optional:
+     *  [zookeeper host] - IP address or domain name of Zookeeper
+     *  [table name]     - HBase table name
+     *  [threads count]  - Threads count
+     *
+     * @param args
+     */
     public static void main(String[] args) {
 
         if (args.length < 2) {
-            System.out.println("Wrong input parameters. Usage: [start key] [end key] (optional: [zookeeper host] [table name] [threads count])");
+            System.out.println(
+                    "Wrong input parameters. Usage: [start key] [end key] (optional: [zookeeper host] [table name] [threads count])"
+            );
             return;
         }
 
@@ -55,7 +70,7 @@ public class HBaseLoader {
 
 
     /**
-     * Starts HBase filling by key range
+     * Splits key range and fills HBase
      *
      * @param startKey      start key
      * @param endKey        end key

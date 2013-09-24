@@ -17,11 +17,21 @@ public class DataGenerator {
     private static final String ROW_DATA_FILE = "row_data.txt";
     private static volatile String rowData;
 
+    /**
+     * Entry point
+     *
+     * [file name]    - output file name
+     * [rows count]   - common lines count
+     *
+     * optional:
+     * [splits by number] - splits all data by several files.
+     * @param args
+     */
     public static void main( String[] args )
     {
         if (args.length < 2) {
             System.out.println(
-                    "Wrong input parameters. Usage: generator [file name] [rows count] (optional: [splits by count])"
+                    "Wrong input parameters. Usage: generator [file name] [rows count] (optional: [splits by number])"
             );
             return;
         }
