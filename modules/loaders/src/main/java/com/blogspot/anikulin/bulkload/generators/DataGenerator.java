@@ -21,7 +21,7 @@ public class DataGenerator {
     {
         if (args.length < 2) {
             System.out.println(
-                    "Wrong input parameters. Use generator [fileName] [rowsCount] optional: [splitByCount]"
+                    "Wrong input parameters. Usage: generator [file name] [rows count] (optional: [splits by count])"
             );
             return;
         }
@@ -61,6 +61,12 @@ public class DataGenerator {
         }
     }
 
+    /**
+     * Loads data from resources
+     *
+     * @return Text
+     * @throws IOException
+     */
     public static String getRowData() throws IOException {
         if (StringUtils.isNotBlank(rowData)) {
             return  rowData;

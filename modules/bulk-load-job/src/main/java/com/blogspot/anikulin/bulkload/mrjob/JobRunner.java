@@ -26,17 +26,18 @@ import static com.blogspot.anikulin.bulkload.commons.Constants.*;
  * @author Anatoliy Nikulin
  * @email 2anikulin@gmail.com
  *
- * Runner implementation
+ * Hadoop Job Runner implementation
  * It prepare data for map reduce.
  * Creates HBase table if doesn't exists
- * Runs job and bulk load function
+ * Sequentially runs job and bulk load function
  */
 public class JobRunner {
 
     private static final Logger LOG = LoggerFactory.getLogger(JobRunner.class);
     private static final String JOB_NAME = "Data loading Job";
-    private static short FULL_GRANTS = (short)0777;
-    private static int   WAIT_TIME = 1000;
+    private static final short FULL_GRANTS = (short)0777;
+    private static final int   WAIT_TIME = 1000;
+
 
     public static void main(String[] args) {
         try {
@@ -100,12 +101,12 @@ public class JobRunner {
                     try {
                         lock.wait(WAIT_TIME);
                     } catch(InterruptedException e) {
-                        LOG.error("[JobsRunner - fail]", e);
+                        LOG.error("JobsRunner was interrupted", e);
                     }
                 }
             }
 
-            LOG.info("Data collecting finished successfully");
+            LOG.info("Data collecting has finished");
 
             List<ControlledJob> successJobs = jobController.getSuccessfulJobList();
             if (successJobs.contains(controlledJob)) {
@@ -119,32 +120,29 @@ public class JobRunner {
                         dataTable
                 );
 
-                LOG.info("Bulk-load process finished");
+                LOG.info("Bulk-load process has finished");
             }
 
             if (jobController.getFailedJobList().size() > 0 ) {
-                LOG.error("Some jobs has not completed");
+                LOG.error("Some jobs has not completed!");
             }
 
         } catch(Exception e) {
-            LOG.error("[JobRunner - fail]", e);
+            LOG.error("JobRunner - fail", e);
         } finally {
-            close(dataTable);
+            Utils.close(dataTable);
         }
     }
 
-    private static void close(Closeable object) {
-        if (object != null) {
-            try {
-                object.close();
-            } catch(IOException e) {
-                LOG.error("Can't close Object", e);
-            }
-        }
-    }
-
+    /**
+     * Sets full 777 permissions on each file
+     *
+     * @param paths  Array of HDFS-path
+     * @throws IOException
+     */
     private static void setFullPermissions(String... paths) throws IOException {
-        LOG.info("Change permissions");
+        LOG.info("Start change permissions");
+
         FileSystem system = Utils.getHDFSFileSystem();
 
         if (system != null) {
@@ -152,11 +150,11 @@ public class JobRunner {
                 for (String path : paths) {
                     Path uriPath = new Path(path + Path.SEPARATOR + COLUMN_FAMILY_NAME);
                     if (!system.exists(uriPath)) {
-                        LOG.info("Path not exists: " + uriPath.toString());
+                        LOG.info("Path doesn't exists: " + uriPath.toString());
                         continue;
                     }
 
-                    LOG.info("Try set new permissions on folder " + uriPath.toString());
+                    LOG.info("Try to set new permissions for folder: " + uriPath.toString());
                     system.setPermission(uriPath, FsPermission.createImmutable(FULL_GRANTS));
 
                     RemoteIterator<LocatedFileStatus> fileStatuses = system.listLocatedStatus(uriPath);
@@ -164,13 +162,13 @@ public class JobRunner {
                     for (LocatedFileStatus status; fileStatuses.hasNext();) {
                         status = fileStatuses.next();
                         if (status != null) {
-                            LOG.info("Try set new permissions on " + status.getPath());
+                            LOG.info("Try to set new permissions for file: " + status.getPath());
                             system.setPermission(status.getPath(), FsPermission.createImmutable(FULL_GRANTS));
                         }
                     }
                 }
             } finally {
-                close(system);
+                Utils.close(system);
             }
         }
     }

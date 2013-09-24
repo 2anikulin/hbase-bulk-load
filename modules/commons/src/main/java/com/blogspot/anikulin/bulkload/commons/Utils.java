@@ -18,7 +18,7 @@ import java.util.Arrays;
  * @author Anatoliy Nikulin
  * @email 2anikulin@gmail.com
  *
- * Utils implements common HDFS and HBase functionality
+ * Implements common HDFS and HBase utils functionality
  */
 public class Utils {
 
@@ -27,7 +27,7 @@ public class Utils {
     private static final int REGIONS_COUNT = 10;
 
     /**
-     * Returns Hadoop File System drives
+     * Returns Hadoop File System driver
      * It needed to be closed after you finish
      *
      * @return File System
@@ -89,7 +89,7 @@ public class Utils {
     }
 
     /**
-     * Creates new HBase table and splits it on several regions
+     * Creates new HBase table and splits on several regions
      *
      * @param tableName HBase table name
      * @param config    HBase configuration

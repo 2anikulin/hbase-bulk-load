@@ -13,7 +13,7 @@ public interface HBaseClient extends Closeable {
 
     /**
      * Fills HBase table incrementally
-     * from start key to end key
+     * from start key to end
      *
      * @param keyStart
      * @param keyEnd

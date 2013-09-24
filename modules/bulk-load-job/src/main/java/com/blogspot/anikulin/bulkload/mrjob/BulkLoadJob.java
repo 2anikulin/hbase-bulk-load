@@ -26,10 +26,10 @@ import static com.blogspot.anikulin.bulkload.commons.Constants.*;
  * @author Anatoliy Nikulin
  * @email 2anikulin@gmail.com
  *
- * Job implementation.
+ * Hadoop job implementation.
  * It prepares data for bulk load.
- * Mapper splits input lines on key and value.
- * All keys are MD5 hashed
+ * Mapper splits tab - separated text lines on key and value.
+ * All row-keys are MD5 hashed since it helps to get normal data distribution
  */
 public class BulkLoadJob extends Configured implements Tool {
 
@@ -46,9 +46,9 @@ public class BulkLoadJob extends Configured implements Tool {
      *
      * @param configuration  Job configuration
      * @param hTable         HBase table
-     * @param inputPath      path to input files
-     * @param outputPath     path to prepared output HFile
-     * @return               returns constructed and initialized Job
+     * @param inputPath      HDFS-path to input files
+     * @param outputPath     HDFS-path to prepared output HFile
+     * @return               Constructed and initialized Job
      * @throws IOException
      */
     public static Job createJob(Configuration configuration, HTable hTable, String inputPath, String outputPath)
@@ -71,8 +71,7 @@ public class BulkLoadJob extends Configured implements Tool {
         FileInputFormat.setInputPaths(job, inputPath);
         HFileOutputFormat.setOutputPath(job, new Path(outputPath));
 
-        //It needs for autoconfiguring partitioner and reducer
-        //and it doesn't load any data to Table
+        //It used for auto-configuring partitioner and reducer
         HFileOutputFormat.configureIncrementalLoad(job, hTable);
 
         LOG.info("Job \"{}\" created", JOB_NAME);
@@ -81,14 +80,8 @@ public class BulkLoadJob extends Configured implements Tool {
     }
 
     /**
-     * Counters enum for collecting statistics data
-     */
-    public static enum Counters {
-        WRONG_DATA_FORMAT_COUNTER
-    }
-
-    /**
      * Mapper implementation
+     * Reads text lines and convert to HBase Put
      */
     public static class DataMapper extends Mapper<LongWritable, Text, ImmutableBytesWritable, Put> {
 
@@ -106,16 +99,17 @@ public class BulkLoadJob extends Configured implements Tool {
         /**
          * Map function
          *
-         * @param key      input key. It always 0
-         * @param value    input value, text line
-         * @param context  job context
+         * @param key      Input key. It always 0
+         * @param value    Input value, text line
+         * @param context  Job context
+         *
          * @throws IOException
          * @throws InterruptedException
          */
         @Override
         public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 
-           String[] values = value.toString().split("\t");
+            String[] values = value.toString().split("\t");
             if (values.length == 2) {
                 String rowKey = values[0];
                 byte[] hashedRowKey = Utils.getHash(rowKey);
@@ -130,5 +124,13 @@ public class BulkLoadJob extends Configured implements Tool {
                 LOG.warn("Wrong line format: {}", value);
             }
         }
+    }
+
+    /**
+     * Enum of counters.
+     * It used for collect statistics
+     */
+    public static enum Counters {
+        WRONG_DATA_FORMAT_COUNTER
     }
 }

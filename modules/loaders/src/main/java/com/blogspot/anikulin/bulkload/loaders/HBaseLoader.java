@@ -18,19 +18,18 @@ import static com.blogspot.anikulin.bulkload.commons.Constants.*;
  * @author Anatoliy Nikulin
  * @email 2anikulin@gmail.com
  *
- * Base loader.
+ * HBase loader.
  * Creates thread for each client and fills HBase table
- * in concurrent mode
  */
 public class HBaseLoader {
 
     private static final Logger LOG = LoggerFactory.getLogger(HBaseLoader.class);
-    private static final int defaultThreadsCount = 8;
+    private static final int DEFAULT_THREADS_COUNT = 8;
 
     public static void main(String[] args) {
 
-        if (args.length < 2) { //TODO Change description
-            System.out.println("Wrong input parameters. Use [start key] [end key] optional: [zookeeper] [table name] [threads count]");
+        if (args.length < 2) {
+            System.out.println("Wrong input parameters. Usage: [start key] [end key] (optional: [zookeeper host] [table name] [threads count])");
             return;
         }
 
@@ -40,10 +39,10 @@ public class HBaseLoader {
         String zookeeper = args.length > 2 ? args[2] : ZOOKEEPER_HOST;
         String tableName = args.length > 3 ? args[3] : TABLE_NAME;
 
-        int threadsCount = args.length > 4 ? Integer.parseInt(args[3]) : defaultThreadsCount;
+        int threadsCount = args.length > 4 ? Integer.parseInt(args[3]) : DEFAULT_THREADS_COUNT;
 
         LOG.info(
-                "Process started with startKey {}, endKey {}, zookeeper {}, table name {}, threads count {}",
+                "Process started with: startKey {}, endKey {}, zookeeper {}, table name {}, threads count {}",
                 startKey,
                 endKey,
                 zookeeper,

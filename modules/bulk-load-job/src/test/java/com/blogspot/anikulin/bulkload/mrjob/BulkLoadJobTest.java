@@ -19,6 +19,8 @@ import java.util.List;
 /**
  * @author Anatoliy Nikulin
  * @email 2anikulin@gmail.com
+ *
+ * Mapper unit test
  */
 public class BulkLoadJobTest {
     private MapDriver<LongWritable, Text, ImmutableBytesWritable, Put> mapDriver;

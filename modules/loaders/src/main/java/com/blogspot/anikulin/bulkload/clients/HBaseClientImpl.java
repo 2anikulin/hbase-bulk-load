@@ -16,7 +16,8 @@ import static com.blogspot.anikulin.bulkload.commons.Constants.*;
  * @author Anatoliy Nikulin
  * @email 2anikulin@gmail.com
  *
- * This implementation fills HBase table
+ * {@link HBaseClient} implementation
+ * Fills HBase table by keys range
  */
 public class HBaseClientImpl implements HBaseClient {
 
