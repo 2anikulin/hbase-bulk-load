@@ -63,6 +63,6 @@ public class HBaseClientImpl implements HBaseClient {
 
     @Override
     public void close() throws IOException {
-        table.close();
+        Utils.close(table);
     }
 }

@@ -70,7 +70,7 @@ public class HBaseLoader {
 
 
     /**
-     * Splits key range and fills HBase
+     * Splits keys by ranges and fills HBase
      *
      * @param startKey      start key
      * @param endKey        end key
@@ -79,6 +79,7 @@ public class HBaseLoader {
      * @param threadsCount  count of threads
      */
     public static void load(final long startKey, final long endKey, final String zookeeper, final String tableName, int threadsCount) {
+
         final CyclicBarrier barrier = new CyclicBarrier(threadsCount);
         final CountDownLatch latch = new CountDownLatch(threadsCount);
 

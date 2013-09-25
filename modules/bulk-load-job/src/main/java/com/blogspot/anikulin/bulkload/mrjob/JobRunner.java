@@ -16,7 +16,6 @@ import org.apache.hadoop.mapreduce.lib.jobcontrol.JobControl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.util.List;
 
@@ -95,11 +94,11 @@ public class JobRunner {
             Thread thread = new Thread(jobController);
             thread.start();
 
-            Object lock = new Object();
+            Object monitor = new Object();
             while (!jobController.allFinished()) {
-                synchronized (lock) {
+                synchronized (monitor) {
                     try {
-                        lock.wait(WAIT_TIME);
+                        monitor.wait(WAIT_TIME);
                     } catch(InterruptedException e) {
                         LOG.error("JobsRunner was interrupted", e);
                     }
@@ -137,7 +136,7 @@ public class JobRunner {
     /**
      * Sets full 777 permissions on each file
      *
-     * @param paths  Array of HDFS-path
+     * @param paths  Array of HDFS-paths
      * @throws IOException
      */
     private static void setFullPermissions(String... paths) throws IOException {

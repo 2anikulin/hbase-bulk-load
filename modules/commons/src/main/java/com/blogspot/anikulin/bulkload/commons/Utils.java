@@ -28,7 +28,7 @@ public class Utils {
 
     /**
      * Returns Hadoop File System driver
-     * It needed to be closed after you finish
+     * You have to close it after finish
      *
      * @return File System
      * @throws IOException
@@ -37,12 +37,14 @@ public class Utils {
         LOG.info("Start configuring HDFS connection");
 
         Configuration conf = new Configuration();
+
         /*
         FileSystem.get is a static call even if you have two different objects created.
         And if you close() instance, you couldn't create and use it again
         This should solve the problem,
         */
         conf.setBoolean(FS_DISABLE_CACHE, true);
+
         FileSystem fileSystem = FileSystem.get(conf);
 
         LOG.info("Connected to HDFS successfully");
@@ -140,5 +142,4 @@ public class Utils {
             LOG.error("Error while closing object", e);
         }
     }
-
 }

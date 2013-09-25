@@ -23,6 +23,7 @@ import java.util.List;
  * Mapper unit test
  */
 public class BulkLoadJobTest {
+
     private MapDriver<LongWritable, Text, ImmutableBytesWritable, Put> mapDriver;
 
     private static final byte[] COLUMN_FAMILY_NAME_BYTES = Bytes.toBytes(COLUMN_FAMILY_NAME);

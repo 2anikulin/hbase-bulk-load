@@ -20,8 +20,4 @@
      <module>modules/commons</module>
   </modules>
 
-  <build>
-    <plugins>
-    </plugins>
-  </build>
 </project>
