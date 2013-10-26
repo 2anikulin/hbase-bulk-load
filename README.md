@@ -10,3 +10,4 @@ using the HBase API.
 
 A.Nikulin 2anikulin@gmail.com
 
+http://habrahabr.ru/post/195040/
