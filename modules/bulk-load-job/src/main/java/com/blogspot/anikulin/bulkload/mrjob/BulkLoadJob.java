@@ -23,35 +23,44 @@ import java.io.IOException;
 import static com.blogspot.anikulin.bulkload.commons.Constants.*;
 
 /**
- * @author Anatoliy Nikulin
- * @email 2anikulin@gmail.com
- *
  * Hadoop job implementation.
  * It prepares data for bulk load.
  * Mapper splits tab - separated text lines on key and value.
  * All row-keys are MD5 hashed since it helps to get normal data distribution
+ *
+ * @author Anatoliy Nikulin
+ * email 2anikulin@gmail.com
  */
 public class BulkLoadJob extends Configured implements Tool {
 
     private static final Logger LOG = LoggerFactory.getLogger(BulkLoadJob.class);
     private static final String JOB_NAME = "HBase bulk-load";
 
+    /**
+     * Tools method.
+     * @param strings arguments
+     * @return code
+     * @throws Exception .
+     */
     @Override
-    public int run(String[] strings) throws Exception {
+    public int run(final String[] strings) throws Exception {
         throw new NotImplementedException("Method not implemented");
     }
 
     /**
-     * Creates and initializes Job
+     * Creates and initializes Job.
      *
-     * @param configuration  Job configuration
-     * @param hTable         HBase table
-     * @param inputPath      HDFS-path to input files
-     * @param outputPath     HDFS-path to prepared output HFile
-     * @return               Constructed and initialized Job
-     * @throws IOException
+     * @param configuration  Job configuration.
+     * @param hTable         HBase table.
+     * @param inputPath      HDFS-path to input files.
+     * @param outputPath     HDFS-path to prepared output HFile.
+     * @return               Constructed and initialized Job.
+     * @throws IOException .
      */
-    public static Job createJob(Configuration configuration, HTable hTable, String inputPath, String outputPath)
+    public static Job createJob(final Configuration configuration,
+                                final HTable hTable,
+                                final String inputPath,
+                                final String outputPath)
             throws IOException {
 
         LOG.info("Job \"{}\" initializing...", JOB_NAME);
@@ -80,8 +89,8 @@ public class BulkLoadJob extends Configured implements Tool {
     }
 
     /**
-     * Mapper implementation
-     * Reads text lines and convert to HBase Put
+     * Mapper implementation.
+     * Reads text lines and convert to HBase Put.
      */
     public static class DataMapper extends Mapper<LongWritable, Text, ImmutableBytesWritable, Put> {
 
@@ -92,22 +101,23 @@ public class BulkLoadJob extends Configured implements Tool {
         private static final byte[] COLUMN_QUALIFIER_INDEX_BYTES = Bytes.toBytes(COLUMN_QUALIFIER_INDEX);
 
         @Override
-        public void setup(Context context) throws IOException, InterruptedException {
+        public void setup(final Context context) throws IOException, InterruptedException {
 
         }
 
         /**
-         * Map function
+         * Map function.
          *
-         * @param key      Input key. It always 0
-         * @param value    Input value, text line
-         * @param context  Job context
+         * @param key      Input key. It always 0.
+         * @param value    Input value, text line.
+         * @param context  Job context.
          *
-         * @throws IOException
-         * @throws InterruptedException
+         * @throws IOException .
+         * @throws InterruptedException .
          */
         @Override
-        public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
+        public void map(final LongWritable key, final Text value, final Context context)
+                throws IOException, InterruptedException {
 
             String[] values = value.toString().split("\t");
             if (values.length == 2) {
@@ -131,6 +141,9 @@ public class BulkLoadJob extends Configured implements Tool {
      * It used for collect statistics
      */
     public static enum Counters {
+        /**
+         * Counts data format errors.
+         */
         WRONG_DATA_FORMAT_COUNTER
     }
 }

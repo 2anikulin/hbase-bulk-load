@@ -13,11 +13,11 @@ import java.io.IOException;
 import static com.blogspot.anikulin.bulkload.commons.Constants.*;
 
 /**
- * @author Anatoliy Nikulin
- * @email 2anikulin@gmail.com
- *
- * {@link HBaseClient} implementation
+ * {@link HBaseClient} implementation.
  * Fills HBase table by keys range
+ *
+ * @author Anatoliy Nikulin
+ * email 2anikulin@gmail.com
  */
 public class HBaseClientImpl implements HBaseClient {
 
@@ -28,7 +28,14 @@ public class HBaseClientImpl implements HBaseClient {
     private final HTable table;
     private final byte[] rowData;
 
-    public HBaseClientImpl(String zookeeper, String tableName) throws IOException {
+    /**
+     * Constructor.
+     *
+     * @param zookeeper Zookeeper host name
+     * @param tableName HBase table name
+     * @throws IOException .
+     */
+    public HBaseClientImpl(final String zookeeper, final String tableName) throws IOException {
         rowData = Bytes.toBytes(DataGenerator.getRowData());
 
         Configuration hBaseConfiguration = HBaseConfiguration.create();
@@ -39,15 +46,15 @@ public class HBaseClientImpl implements HBaseClient {
     }
 
     /**
-     * Fills HBase table incrementally
+     * Fills HBase table incrementally.
      * from start key to end key
      *
-     * @param keyStart
-     * @param keyEnd
-     * @throws IOException
+     * @param keyStart start
+     * @param keyEnd finish
+     * @throws IOException .
      */
     @Override
-    public void send(long keyStart, long keyEnd) throws IOException {
+    public void send(final long keyStart, final long keyEnd) throws IOException {
 
         for (long i = keyStart; i <= keyEnd; i++) {
             String rowKey = Long.toString(i);
@@ -61,6 +68,10 @@ public class HBaseClientImpl implements HBaseClient {
         table.flushCommits();
     }
 
+    /**
+     * Close table.
+     * @throws IOException .
+     */
     @Override
     public void close() throws IOException {
         Utils.close(table);

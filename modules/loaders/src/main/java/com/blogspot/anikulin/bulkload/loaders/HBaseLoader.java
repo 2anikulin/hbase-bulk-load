@@ -15,19 +15,23 @@ import java.util.concurrent.atomic.AtomicLong;
 import static com.blogspot.anikulin.bulkload.commons.Constants.*;
 
 /**
- * @author Anatoliy Nikulin
- * @email 2anikulin@gmail.com
- *
  * HBase loader.
  * Creates thread for each client and fills HBase table
+ *
+ * @author Anatoliy Nikulin
+ * email 2anikulin@gmail.com
  */
 public class HBaseLoader {
 
     private static final Logger LOG = LoggerFactory.getLogger(HBaseLoader.class);
     private static final int DEFAULT_THREADS_COUNT = 8;
 
+    private static final int ZOOKEEPER_ARG = 2;
+    private static final int TABLE_ARG = 3;
+    private static final int THREADS_COUNT_ARG = 4;
+
     /**
-     * Entry point
+     * Entry point.
      *
      * [start key]       - from key
      * [end key]         - to key
@@ -37,9 +41,9 @@ public class HBaseLoader {
      *  [table name]     - HBase table name
      *  [threads count]  - Threads count
      *
-     * @param args
+     * @param args input arguments
      */
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
 
         if (args.length < 2) {
             System.out.println(
@@ -51,10 +55,10 @@ public class HBaseLoader {
         long startKey = Long.parseLong(args[0]);
         long endKey = Long.parseLong(args[1]);
 
-        String zookeeper = args.length > 2 ? args[2] : ZOOKEEPER_HOST;
-        String tableName = args.length > 3 ? args[3] : TABLE_NAME;
+        String zookeeper = args.length > ZOOKEEPER_ARG ? args[ZOOKEEPER_ARG] : ZOOKEEPER_HOST;
+        String tableName = args.length > TABLE_ARG ? args[TABLE_ARG] : TABLE_NAME;
 
-        int threadsCount = args.length > 4 ? Integer.parseInt(args[3]) : DEFAULT_THREADS_COUNT;
+        int threadsCount = args.length > THREADS_COUNT_ARG ? Integer.parseInt(args[THREADS_COUNT_ARG]) : DEFAULT_THREADS_COUNT;
 
         LOG.info(
                 "Process started with: startKey {}, endKey {}, zookeeper {}, table name {}, threads count {}",
@@ -70,7 +74,7 @@ public class HBaseLoader {
 
 
     /**
-     * Splits keys by ranges and fills HBase
+     * Splits keys by ranges and fills HBase.
      *
      * @param startKey      start key
      * @param endKey        end key
@@ -78,7 +82,11 @@ public class HBaseLoader {
      * @param tableName     HBase table name
      * @param threadsCount  count of threads
      */
-    public static void load(final long startKey, final long endKey, final String zookeeper, final String tableName, int threadsCount) {
+    public static void load(final long startKey,
+                            final long endKey,
+                            final String zookeeper,
+                            final String tableName,
+                            final int threadsCount) {
 
         final CyclicBarrier barrier = new CyclicBarrier(threadsCount);
         final CountDownLatch latch = new CountDownLatch(threadsCount);
@@ -122,8 +130,8 @@ public class HBaseLoader {
                             } catch (InterruptedException ie) {
                                 LOG.error("Thread id: {} was interrupted",Thread.currentThread().getId(), ie);
                                 Thread.currentThread().interrupt();
-                            } catch (Exception e) {
-                                LOG.error("Thread id: {} fail",Thread.currentThread().getId(), e);
+                            } catch (BrokenBarrierException | IOException e) {
+                                LOG.error("Thread id: {} failed", Thread.currentThread().getId(), e);
                             } finally {
                                 Utils.close(client);
                                 latch.countDown();
@@ -149,7 +157,7 @@ public class HBaseLoader {
         executor.shutdownNow();
     }
 
-    private static HBaseClient createClient(String zookeeper, String tableName) throws IOException {
+    private static HBaseClient createClient(final String zookeeper, final String tableName) throws IOException {
         return new HBaseClientImpl(zookeeper, tableName);
     }
 }

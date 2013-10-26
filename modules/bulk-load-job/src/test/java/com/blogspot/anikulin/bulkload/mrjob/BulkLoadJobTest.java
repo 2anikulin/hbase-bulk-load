@@ -18,7 +18,7 @@ import java.util.List;
 
 /**
  * @author Anatoliy Nikulin
- * @email 2anikulin@gmail.com
+ * email 2anikulin@gmail.com
  *
  * Mapper unit test
  */

@@ -7,28 +7,31 @@ import org.apache.commons.lang.StringUtils;
 import java.io.*;
 
 /**
- * @author Anatoliy Nikulin
- * @email 2anikulin@gmail.com
+ * Generates Tab Separated files included test data.
  *
- * Generates Tab Separated files included test data
+ * @author Anatoliy Nikulin
+ * email 2anikulin@gmail.com
  */
 public class DataGenerator {
 
     private static final String ROW_DATA_FILE = "row_data.txt";
+    private static final int OUTPUT_FILE_ARG = 0;
+    private static final int ROWS_COUNT_ARG = 1;
+    private static final int SPLITS_ARG = 2;
+
     private static volatile String rowData;
 
     /**
-     * Entry point
+     * Entry point.
      *
      * [file name]    - output file name
      * [rows count]   - common lines count
      *
      * optional:
      * [splits by number] - splits all data by several files.
-     * @param args
+     * @param args input arguments
      */
-    public static void main( String[] args )
-    {
+    public static void main(final String[] args) {
         if (args.length < 2) {
             System.out.println(
                     "Wrong input parameters. Usage: generator [file name] [rows count] (optional: [splits by number])"
@@ -36,9 +39,9 @@ public class DataGenerator {
             return;
         }
 
-        String outputFile = args[0];
-        long rowsCount = Long.parseLong(args[1]);
-        long splitRowsCount = args.length == 3 ? Long.parseLong(args[2]) : rowsCount;
+        String outputFile = args[OUTPUT_FILE_ARG];
+        long rowsCount = Long.parseLong(args[ROWS_COUNT_ARG]);
+        long splitRowsCount = args.length == 3 ? Long.parseLong(args[SPLITS_ARG]) : rowsCount;
 
         BufferedWriter fileWriter = null;
 
@@ -56,7 +59,7 @@ public class DataGenerator {
 
                 if (fileWriter != null) {
                     fileWriter.write(
-                            String.format("%d\t%s\n", i, rowString)
+                            String.format("%d\t%s%n", i, rowString)
                     );
                 } else {
                     throw new NullPointerException("Error while writer creating");
@@ -64,7 +67,7 @@ public class DataGenerator {
             }
             System.out.println("Successfully!");
 
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
         } finally {
             IOUtils.closeQuietly(fileWriter);
@@ -72,10 +75,10 @@ public class DataGenerator {
     }
 
     /**
-     * Loads data from resources
+     * Loads data from resources.
      *
      * @return Text
-     * @throws IOException
+     * @throws IOException .
      */
     public static String getRowData() throws IOException {
         if (StringUtils.isNotBlank(rowData)) {
@@ -99,7 +102,7 @@ public class DataGenerator {
     }
 
 
-    private static BufferedWriter createFile(String filePath, int counter) throws IOException {
+    private static BufferedWriter createFile(final String filePath, final int counter) throws IOException {
         String newFileName = String.format(
                 "%s%d.%s",
                 FilenameUtils.removeExtension(filePath),

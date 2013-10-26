@@ -22,23 +22,27 @@ import java.util.List;
 import static com.blogspot.anikulin.bulkload.commons.Constants.*;
 
 /**
- * @author Anatoliy Nikulin
- * @email 2anikulin@gmail.com
- *
- * Hadoop Job Runner implementation
+ * Hadoop Job Runner implementation.
  * It prepare data for map reduce.
  * Creates HBase table if doesn't exists
  * Sequentially runs job and bulk load function
+ *
+ * @author Anatoliy Nikulin
+ * email 2anikulin@gmail.com
  */
 public class JobRunner {
 
     private static final Logger LOG = LoggerFactory.getLogger(JobRunner.class);
     private static final String JOB_NAME = "Data loading Job";
-    private static final short FULL_GRANTS = (short)0777;
+    private static final short FULL_GRANTS = (short) 0777;
     private static final int   WAIT_TIME = 1000;
 
 
-    public static void main(String[] args) {
+    /**
+     * Entry point.
+     * @param args input arguments
+     */
+    public static void main(final String[] args) {
         try {
             LOG.info("Runner started");
 
@@ -61,7 +65,7 @@ public class JobRunner {
         System.exit(0);
     }
 
-    private static void loading(Configuration jobConfiguration) {
+    private static void loading(final Configuration jobConfiguration) {
         LOG.info("Loading process started");
         LOG.info("Job input path {}", JOB_INPUT_PATH);
         LOG.info("Job output path {}", JOB_OUTPUT_PATH);
@@ -134,12 +138,12 @@ public class JobRunner {
     }
 
     /**
-     * Sets full 777 permissions on each file
+     * Sets full 777 permissions on each file.
      *
      * @param paths  Array of HDFS-paths
      * @throws IOException
      */
-    private static void setFullPermissions(String... paths) throws IOException {
+    private static void setFullPermissions(final String... paths) throws IOException {
         LOG.info("Start change permissions");
 
         FileSystem system = Utils.getHDFSFileSystem();
@@ -158,8 +162,8 @@ public class JobRunner {
 
                     RemoteIterator<LocatedFileStatus> fileStatuses = system.listLocatedStatus(uriPath);
 
-                    for (LocatedFileStatus status; fileStatuses.hasNext();) {
-                        status = fileStatuses.next();
+                    while (fileStatuses.hasNext()) {
+                        LocatedFileStatus status = fileStatuses.next();
                         if (status != null) {
                             LOG.info("Try to set new permissions for file: " + status.getPath());
                             system.setPermission(status.getPath(), FsPermission.createImmutable(FULL_GRANTS));

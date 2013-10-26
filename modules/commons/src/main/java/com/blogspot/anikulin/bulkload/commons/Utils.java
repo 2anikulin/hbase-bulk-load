@@ -15,10 +15,10 @@ import java.io.IOException;
 import java.util.Arrays;
 
 /**
- * @author Anatoliy Nikulin
- * @email 2anikulin@gmail.com
+ * Implements common HDFS and HBase utils functionality.
  *
- * Implements common HDFS and HBase utils functionality
+ * @author Anatoliy Nikulin
+ * email 2anikulin@gmail.com
  */
 public class Utils {
 
@@ -26,12 +26,16 @@ public class Utils {
     private static final String FS_DISABLE_CACHE = "fs.hdfs.impl.disable.cache";
     private static final int REGIONS_COUNT = 10;
 
+    private static final int KEY_LENGTH = 16;
+    private static final int START_KEY = 0;
+    private static final int END_KEY = 255;
+
     /**
-     * Returns Hadoop File System driver
+     * Returns Hadoop File System driver.
      * You have to close it after finish
      *
      * @return File System
-     * @throws IOException
+     * @throws IOException .
      */
     public static FileSystem getHDFSFileSystem() throws IOException {
         LOG.info("Start configuring HDFS connection");
@@ -53,23 +57,24 @@ public class Utils {
     }
 
     /**
-     * Calculates MD5 hash
+     * Calculates MD5 hash.
      *
+     * @param value input
      * @return hashed value
      */
-    public static byte[] getHash(String value) {
+    public static byte[] getHash(final String value) {
         return DigestUtils.md5(value);
     }
 
     /**
-     * Checks HBase table
+     * Checks HBase table.
      *
      * @param tableName HBase table name
      * @param config    HBase configuration
      * @return          true if table exists
-     * @throws IOException
+     * @throws IOException .
      */
-    public static boolean isHTableExists(String tableName, Configuration config) throws IOException {
+    public static boolean isHTableExists(final String tableName, final Configuration config) throws IOException {
         HBaseAdmin admin = null;
         boolean ret = false;
 
@@ -80,7 +85,7 @@ public class Utils {
             ret = admin.tableExists(tableName);
 
             LOG.info("Table {} is {}", tableName, ret ? "exists" : "not exists");
-        } catch(IOException e) {
+        } catch (IOException e) {
             LOG.error("HBase request failed", e);
             throw e;
         } finally {
@@ -91,13 +96,13 @@ public class Utils {
     }
 
     /**
-     * Creates new HBase table and splits on several regions
+     * Creates new HBase table and splits on several regions.
      *
      * @param tableName HBase table name
      * @param config    HBase configuration
-     * @throws IOException
+     * @throws IOException .
      */
-    public static void createHTable(String tableName, Configuration config) throws IOException {
+    public static void createHTable(final String tableName, final Configuration config) throws IOException {
         HTableDescriptor descriptor = new HTableDescriptor(
                 Bytes.toBytes(tableName)
         );
@@ -112,15 +117,15 @@ public class Utils {
             LOG.info("Try connect to HBase");
             admin = new HBaseAdmin(config);
 
-            byte[] startKey = new byte[16];
-            Arrays.fill(startKey, (byte) 0);
+            byte[] startKey = new byte[KEY_LENGTH];
+            Arrays.fill(startKey, (byte) START_KEY);
 
-            byte[] endKey = new byte[16];
-            Arrays.fill(endKey, (byte)255);
+            byte[] endKey = new byte[KEY_LENGTH];
+            Arrays.fill(endKey, (byte) END_KEY);
 
             admin.createTable(descriptor, startKey, endKey, REGIONS_COUNT);
 
-        } catch(IOException e) {
+        } catch (IOException e) {
             LOG.error("Unable to create table", e);
             throw e;
         } finally {
@@ -129,16 +134,16 @@ public class Utils {
     }
 
     /**
-     * Closes object
+     * Closes object.
      *
-     * @param object
+     * @param object Object to close.
      */
-    public static void close(Closeable object) {
+    public static void close(final Closeable object) {
         try {
             if (object != null) {
                 object.close();
             }
-        } catch(Throwable e) {
+        } catch (IOException e) {
             LOG.error("Error while closing object", e);
         }
     }

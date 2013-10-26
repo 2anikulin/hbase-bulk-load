@@ -18,7 +18,7 @@ import static org.powermock.api.support.membermodification.MemberModifier.stub;
 
 /**
  * @author Anatoliy Nikulin
- * @email 2anikulin@gmail.com
+ * email 2anikulin@gmail.com
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(HBaseLoader.class)
